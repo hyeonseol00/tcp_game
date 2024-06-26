@@ -1,5 +1,9 @@
 import { config } from '../config/config.js';
 import { PACKET_TYPE, TOTAL_LENGTH } from '../constants/header.js';
+import { getHandlerById } from '../handlers/index.js';
+import { getUserById } from '../session/user.session.js';
+import CustomError from '../utils/error/customError.js';
+import { handleError } from '../utils/error/errorHandler.js';
 import { packetParser } from '../utils/parser/packetParser.js';
 
 export const onData = (socket) => async (data) =>
@@ -30,26 +34,33 @@ export const onData = (socket) => async (data) =>
 			console.log(`packetType: ${packetType}`);
 			console.log(packet);
 
-			switch (packetType)
+			try
 			{
-				case PACKET_TYPE.PING:
-					break;
-				case PACKET_TYPE.NORMAL:
-					const { handlerId, sequence, payload, userId } = packetParser(packet);
+				switch (packetType)
+				{
+					case PACKET_TYPE.PING:
+						break;
+					case PACKET_TYPE.NORMAL:
+						const { handlerId, sequence, payload, userId } = packetParser(packet);
 
-					const user = getUserById(userId);
-					// 유저가 접속해 있는 상황에서 시퀀스 검증
-					if (user && user.sequence !== sequence)
-					{
-						console.error('잘못된 호출 값입니다.');
-					}
+						const user = getUserById(userId);
+						// 유저가 접속해 있는 상황에서 시퀀스 검증
+						if (user && user.sequence !== sequence)
+						{
+							throw new CustomError(ErrorCodes.INVALID_SEQUENCE, '잘못된 호출 값입니다. ');
+						}
 
-					const handler = getHandlerById(handlerId);
-					await handler({
-						socket,
-						userId,
-						payload,
-					});
+						const handler = getHandlerById(handlerId);
+						await handler({
+							socket,
+							userId,
+							payload,
+						});
+				}
+			}
+			catch (e)
+			{
+				handleError(socket, e);
 			}
 		}
 		else
