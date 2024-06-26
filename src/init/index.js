@@ -1,12 +1,13 @@
 // 서버 초기화 작업
 import { loadGameAssets } from './assets.js';
+import { loadProtos } from './loadProtos.js';
 
 const initServer = async () =>
 {
 	try
 	{
 		await loadGameAssets();
-		// 다음 작업
+		await loadProtos();
 	} catch (e)
 	{
 		console.error(e);
