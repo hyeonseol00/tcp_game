@@ -1,3 +1,4 @@
+import { gameStartNotification } from '../../utils/notification/game.notification.js';
 import IntervalManager from '../managers/interval.manager.js';
 
 const MAX_PLAYERS = 2;
@@ -46,9 +47,26 @@ class Game
 		}
 	}
 
+	getMaxLatency()
+	{
+		let maxLatency = 0;
+		this.users.forEach((user) =>
+		{
+			maxLatency = Math.max(maxLatency, user.latency);
+		});
+		return maxLatency;
+	}
+
 	startGame()
 	{
 		this.state = 'inProgress';
+		const startPacket = gameStartNotification(this.id, Date.now());
+		console.log(this.getMaxLatency());
+
+		this.users.forEach((user) =>
+		{
+			user.socket.write(startPacket);
+		});
 	}
 }
 
