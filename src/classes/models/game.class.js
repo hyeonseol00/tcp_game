@@ -1,3 +1,5 @@
+import IntervalManager from '../managers/interval.manager.js';
+
 const MAX_PLAYERS = 2;
 
 class Game
@@ -6,6 +8,7 @@ class Game
 	{
 		this.id = id;
 		this.users = [];
+		this.intervalManager = new IntervalManager();
 		this.state = 'waiting'; // 'waiting', 'inProgress'
 	}
 
@@ -17,6 +20,7 @@ class Game
 		}
 		this.users.push(user);
 
+		this.intervalManager.addPlayer(user.id, user.ping.bind(user), 1000);
 		if (this.users.length === MAX_PLAYERS)
 		{
 			setTimeout(() =>
@@ -34,6 +38,7 @@ class Game
 	removeUser(userId)
 	{
 		this.users = this.users.filter((user) => user.id !== userId);
+		this.intervalManager.removePlayer(userId);
 
 		if (this.users.length < MAX_PLAYERS)
 		{
