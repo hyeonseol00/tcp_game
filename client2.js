@@ -6,7 +6,8 @@ const PACKET_TYPE_LENGTH = 1; // 패킷타입을 나타내는 1바이트
 
 let userId;
 let sequence;
-const deviceId = 'xxxx1x';
+const deviceId = 'xxxxx';
+let gameId = '007ac63d-43bc-4f91-8c56-4405275de212';
 
 const createPacket = (handlerId, payload, clientVersion = '1.0.0', type, name) =>
 {
@@ -75,11 +76,11 @@ client.connect(PORT, HOST, async () =>
 	await delay(500);
 
 	const createGamePacket = createPacket(
-		4,
-		{ timestamp: Date.now() },
+		5,
+		{ timestamp: Date.now(), gameId },
 		'1.0.0',
 		'game',
-		'CreateGamePayload',
+		'JoinGamePayload',
 	);
 
 	await sendPacket(client, createGamePacket);
