@@ -1,4 +1,4 @@
-import { gameStartNotification } from '../../utils/notification/game.notification.js';
+import { createLocationPacket, gameStartNotification } from '../../utils/notification/game.notification.js';
 import IntervalManager from '../managers/interval.manager.js';
 
 const MAX_PLAYERS = 2;
@@ -67,6 +67,18 @@ class Game
 		{
 			user.socket.write(startPacket);
 		});
+	}
+
+	getAllLocation()
+	{
+		const maxLatency = this.getMaxLatency();
+
+		const locationData = this.users.map((user) =>
+		{
+			const { x, y } = user.calculatePosition(maxLatency);
+			return { id: user.id, x, y };
+		});
+		return createLocationPacket(locationData);
 	}
 }
 
