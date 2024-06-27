@@ -6,8 +6,11 @@ const TOTAL_LENGTH = 4; // 전체 길이를 나타내는 4바이트
 const PACKET_TYPE_LENGTH = 1; // 패킷타입을 나타내는 1바이트
 
 let userId;
-let sequence;
+let gameId;
+let sequence = 0;
 const deviceId = 'xxxx1x';
+let x = 0.0;
+let y = 0.0;
 
 const createPacket = (handlerId, payload, clientVersion = '1.0.0', type, name) =>
 {
@@ -76,6 +79,14 @@ const sendPong = (socket, timestamp) =>
 	const packetWithLength = Buffer.concat([packetLength, packetType, pongBuffer]);
 
 	socket.write(packetWithLength);
+};
+
+const updateLocation = (socket) =>
+{
+	x += 0.1;
+	const packet = createPacket(6, { gameId, x, y }, '1.0.0', 'game', 'LocationUpdatePayload');
+
+	sendPacket(socket, packet);
 };
 
 // 서버에 연결할 호스트와 포트
@@ -152,6 +163,40 @@ client.on('data', (data) =>
 		} catch (pongError)
 		{
 			console.error('Ping 처리 중 오류 발생:', pongError);
+		}
+	} else if (packetType === 2)
+	{
+		try
+		{
+			const Start = protoMessages.gameNotification.Start;
+			const startMessage = Start.decode(packet);
+
+			console.log('응답 데이터:', startMessage);
+			if (startMessage.gameId)
+			{
+				gameId = startMessage.gameId;
+			}
+
+			// 위치 업데이트 패킷 전송
+			setInterval(() =>
+			{
+				updateLocation(client);
+			}, 1000);
+		} catch (error)
+		{
+			console.error(error);
+		}
+	} else if (packetType === 3)
+	{
+		try
+		{
+			const locationUpdate = protoMessages.gameNotification.LocationUpdate;
+			const locationUpdateMessage = locationUpdate.decode(packet);
+
+			console.log('응답 데이터:', locationUpdateMessage);
+		} catch (error)
+		{
+			console.error(error);
 		}
 	}
 });
