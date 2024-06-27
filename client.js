@@ -147,7 +147,7 @@ client.on('data', (data) =>
 				pingMessage.timestamp.high,
 				pingMessage.timestamp.unsigned,
 			);
-			console.log('핑을 수신했습니다:', timestampLong.toNumber());
+			// console.log('핑을 수신했습니다:', timestampLong.toNumber());
 			sendPong(client, timestampLong.toNumber());
 		} catch (pongError)
 		{

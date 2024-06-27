@@ -36,7 +36,7 @@ class User
 	{
 		const now = Date.now();
 		this.latency = (now - data.timestamp) / 2;
-		console.log(`${now}에 유저 ${this.id}에게 pong을 받았습니다. 지연 시간: ${this.latency}ms`);
+		// console.log(`${now}에 유저 ${this.id}에게 pong을 받았습니다. 지연 시간: ${this.latency}ms`);
 	}
 }
 
